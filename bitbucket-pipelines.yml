@@ -1,0 +1,36 @@
+image: openjdk:15
+
+options:
+  size: 2x
+
+pipelines:
+  default:
+    - step:
+        name: Checking code style
+        caches:
+          - gradle
+        script:
+          - bash ./gradlew check -x test
+    - step:
+        name: Make Build
+        caches:
+          - gradle
+        script:
+          - bash ./gradlew --debug --stacktrace -x test build
+    - step:
+        name: Make Test
+        caches:
+          - gradle
+        script:
+          - bash ./gradlew --debug --stacktrace cleanTest test
+        services:
+          - postgres
+
+definitions:
+  services:
+    postgres:
+      image: postgres
+      environment:
+        POSTGRES_DB: 'postgres'
+        POSTGRES_USER: 'postgres'
+        POSTGRES_PASSWORD: 'postgres'
